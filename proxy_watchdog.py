@@ -61,6 +61,7 @@ while True:
         tot_failed += 1
         logging.warning('Test failed for "'+target_proxy+'" using "'+checking_url+'"')
         runner(post_fail)
-        logging.info('Post fail action performed completely')
+        logging.info('Post fail action performed completely. Will sleep for extra '+str(extra_delay_after_post_fail)+'s')
+        time.sleep(extra_delay_after_post_fail)
     logging.debug('Done. Will sleep for '+str(checking_gap)+'s')
     time.sleep(checking_gap)
