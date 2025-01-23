@@ -49,7 +49,7 @@ tot_succeed = 0
 tot_failed = 0
 while True:
     tot_chks = tot_succeed + tot_failed
-    if tot_chks > 0 and tot_chks % 1 == 0:
+    if tot_chks > 0 and tot_chks % 5 == 0:
         logging.info('Heartbeat: TotalChecks: '+str(tot_chks)+' Succeed: '+str(tot_succeed)+' Failed: '+str(tot_failed))
     logging.debug('Start to check proxy "'+target_proxy+'"...')
     status = os.system('ALL_PROXY='+target_proxy+' '+curl_bin+' '+checking_url+' --max-time '+str(curl_max_time)+' > /dev/null 2> /dev/null')
