@@ -18,7 +18,7 @@ curl_bin = '/usr/bin/curl' # Where cURL binary is. P.S. You might don't need to 
 # What do you want to do after failed checks / succeed checks.
 # Use 'python' to use 'eval' to run python code. Use 'system' to exec a shell command using 'os.system'.
 post_fail = ('system','systemctl restart tor')
-post_success = ('python','pass')
+post_success = ('python','None')
 ### CONFIG ENDS ###
 
 import logging
@@ -45,13 +45,20 @@ signal.signal(signal.SIGINT, signal_handler)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: [%(levelname)s] %(message)s')
 
 logging.info('Started the watchdog...')
+tot_succeed = 0
+tot_failed = 0
 while True:
+    tot_chks = tot_succeed + tot_failed
+    if tot_chks > 0 and tot_chks % 1 == 0:
+        logging.info('Heartbeat: TotalChecks: '+str(tot_chks)+' Succeed: '+str(tot_succeed)+' Failed: '+str(tot_failed))
     logging.debug('Start to check proxy "'+target_proxy+'"...')
     status = os.system('ALL_PROXY='+target_proxy+' '+curl_bin+' '+checking_url+' --max-time '+str(curl_max_time)+' > /dev/null 2> /dev/null')
     if status == 0:
+        tot_succeed += 1
         logging.debug('Test succeed')
         runner(post_success)
     else:
+        tot_failed += 1
         logging.warning('Test failed for "'+target_proxy+'" using "'+checking_url+'"')
         runner(post_fail)
         logging.info('Post fail action performed completely')
