@@ -13,6 +13,7 @@ Edit the script directly. Help info about configs is in the script too.
 1. Backup your old config.
 2. Replace the old scrip with the new one.
 3. Reconfigure.
+
 Update is not necessary, if you think the old one is good enough.
 
 ## Another way of update (dirty)
@@ -20,12 +21,14 @@ Update is not necessary, if you think the old one is good enough.
 2. Replace the old scrip with the new one.
 3. Paste the old config section UNDER the config section of the new script.
 4. Change some new config entries.
+
 THIS WAY IS NOT RECOMMENDED AT ALL!!!
 
 ## How to use
 1. First, you need Python 3, not 2.
 2. Use "nohup" or run it as a service.
+
 An example of using "nohup":
 ``` bash
-    nohup python3 -u proxy_watchdog.py > proxy_watchdog.out &
+nohup python3 -u proxy_watchdog.py > proxy_watchdog.out &
 ```
