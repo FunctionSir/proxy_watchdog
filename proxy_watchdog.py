@@ -11,9 +11,12 @@
 target_proxy = 'socks5h://127.0.0.1:9150' # The proxy you want to check. P.S. You might want socks5h rather than socks5.
 checking_url = 'http://google.com' # URL for checking the proxy.
 curl_max_time = 10 # Arg max-time for curl, seconds.
+curl_retry = 5 # Arg retry for curl, max retry count.
+curl_retry_all_errors = True # Add arg retry-all-errors for curl or not, True or False.
 checking_gap = 300 # Gap between 2 checks, seconds.
 extra_delay_after_post_fail = 120 # Delay more after post fail action done.
 curl_bin = '/usr/bin/curl' # Where cURL binary is. P.S. You might don't need to change it.
+heartbeat_frequency = 5 # Frequency of heartbeat report. Use 0 to turn it off. Default is heartbeat every 5 checks.
 
 # What do you want to do after failed checks / succeed checks.
 # Use 'python' to use 'eval' to run python code. Use 'system' to exec a shell command using 'os.system'.
@@ -38,7 +41,7 @@ def runner(data: tuple[str:str]):
     else:
         raise ValueError('Tuple element post_fail[0] or post_success[0] must be one of system or python')
 
-print('ProxyWatchdog [ Version: 0.1.0 (ShiraiKuroko) ]')
+print('ProxyWatchdog [ Version: 0.1.1 (ShiraiKuroko) ]')
 print('By FunctionSir | Feel free to use it under AGPLv3')
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -49,10 +52,18 @@ tot_succeed = 0
 tot_failed = 0
 while True:
     tot_chks = tot_succeed + tot_failed
-    if tot_chks > 0 and tot_chks % 5 == 0:
+    if heartbeat_frequency != 0 and tot_chks > 0 and tot_chks % heartbeat_frequency == 0:
         logging.info('Heartbeat: TotalChecks: '+str(tot_chks)+' Succeed: '+str(tot_succeed)+' Failed: '+str(tot_failed))
     logging.debug('Start to check proxy "'+target_proxy+'"...')
-    status = os.system('ALL_PROXY='+target_proxy+' '+curl_bin+' '+checking_url+' --max-time '+str(curl_max_time)+' > /dev/null 2> /dev/null')
+    cmd = 'ALL_PROXY='+target_proxy+' ' # Set proxy.
+    cmd += curl_bin + ' ' # cURL binary.
+    cmd += checking_url + ' ' # URL for checking.
+    cmd += '--max-time '+str(curl_max_time) + ' ' # Set arg max-time.
+    cmd += '--retry ' + str(curl_retry) + ' ' # Set arg retry.
+    if curl_retry_all_errors: # Set arg retry-all-errors if wanted.
+        cmd += '--retry-all-errors' + ' '
+    cmd += '> /dev/null 2> /dev/null' # Drop all the outputs.
+    status = os.system(cmd)
     if status == 0:
         tot_succeed += 1
         logging.debug('Test succeed')
